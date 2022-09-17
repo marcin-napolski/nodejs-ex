@@ -2,7 +2,61 @@
 
 <head>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      padding: 2em;
+      font-family: sans-serif;
+    }
+
+    .card {
+      border: 2px solid Gray;
+      border-radius: 10px;
+      margin: 20px; 
+    }
+
+    .card header {
+      display: block;
+      border-radius: 8px 8px 0 0;
+      background: #42b983;
+      padding: 10px;
+      color: white;
+      font-size: 1.5em;
+    }
+
+    .card div {
+      padding: 1em;
+    }
+
+    span, form {
+      padding: 1em;
+    }
+    table {
+      border: 2px solid #42b983;
+      border-radius: 3px;
+      background-color: #fff;
+    }
+    th {
+      background-color: #42b983;
+      color: rgba(255,255,255,0.66);
+    }
+
+    td {
+      background-color: #f9f9f9;
+    }
+
+    th, td {
+      min-width: 120px;
+      padding: 10px 20px;
+    }
+    
+    button{
+      background-color: #42b983;
+      color: rgba(255,255,255,0.66);
+      cursor: pointer;
+      font-family: sans-serif;
+      font-size: 17;
+    }
+  </style>
 </head>
 
 <body>
@@ -52,7 +106,121 @@
 
       
 
-  <script src="script.js"></script>
+  <script>
+    var intro = new Vue({
+      el: "#title",
+      data: {
+        title: "Introduction",
+        content:
+          "<strong>Esperanto</strong> is the most widely spoken constructed international auxiliary language created by <em>L. L. Zamenhof</em>."
+      }
+    });
+    var words = new Vue({
+      el: "#words",
+      data: {
+        title: "Dictionary",
+        items: [
+          { text_eo: "granda", text_en: "big" },
+          { text_eo: "malgranda", text_en: "small" },      
+          { text_eo: "Kato", text_en: "Cat" },
+          { text_eo: "Hundo", text_en: "Dog"},
+          { text_eo: "Veturi", text_en: "Travel"},
+          { text_eo: "Birdo", text_en: "Bird"}
+        ],
+        nounCount: 0,
+        verbCount: 0, 
+        adjectiveCount: 0,
+        parts: [ "nouns", "verbs", "adjectives"],
+
+        input_eo: "",
+        input_en: ""
+      },
+      methods: {
+          addItem: function(e) {
+            e.preventDefault();
+            if (!this.input_eo|!this.input_en) return;
+
+            this.items.push({ text_eo: this.input_eo, text_en: this.input_en });
+            this.input_eo = "";
+            this.input_en = "";
+          },
+          deleteItem: function(index) {
+            this.items.splice(index, 1);
+          },
+          countParts: function(){
+            var letter = "";
+            this.nounCount= 0;
+            this.verbCount = 0; 
+            this.adjectiveCount = 0;
+            var items = this.items;
+            for (var i in items) {
+              letter = items[i].text_eo.slice(-1);
+              switch(letter) {
+                case 'o':
+                  this.nounCount++;
+                  break;
+                case 'i':
+                  this.verbCount++;
+                  break;
+                case 'a':
+                  this.adjectiveCount++;
+                  break;
+               }
+            }
+          },
+          returnCount: function(part){
+            if (part == 'nouns') {return this.nounCount}
+            if (part == 'verbs') {return this.verbCount}
+            if (part == 'adjectives') {return this.adjectiveCount}
+            if (part == 'words') {return this.items.length}
+          },
+      },
+      filters: {
+          capitalize: function(value) {
+            if (!value) return "";
+            value = value.toString();
+            return value.charAt(0).toUpperCase() + value.slice(1);
+          },
+          undercase: function(value) {
+            if (!value) return "";
+            value = value.toString();
+            return value.toLowerCase();
+          },
+          uppercase: function(value) {
+              if (!value) return "";
+              value = value.toString();
+              return value.toUpperCase();
+          }
+      },
+      computed: {
+        totalWords: function() {
+          this.countParts();
+          return this.items.length;
+        },
+        totalNouns: function(){
+          return this.nounCount;
+        },
+        totalVerbs: function(){
+          return this.verbCount;
+        },
+        totalAdjectives: function(){
+          return this.adjectiveCount;
+        }
+      },
+
+      components:{
+        'words-counter':{
+          props: ["name"],
+          data: function () {
+            return {
+              subject: this.name
+            }
+          },
+          template: '<span>Number of {{ subject }} in the dictionary: </span>'
+        }
+      },
+    });
+  </script>
 </body>
 
 </html>
